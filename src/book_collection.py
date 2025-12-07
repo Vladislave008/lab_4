@@ -56,7 +56,7 @@ class IndexDict():
         genre = book.genre
         isbn = book.isbn
 
-        if isbn is not None and author is not None and year is not None and genre is not None and isbn is not None and title is not None:
+        if isbn is not None and author is not None and year is not None and genre is not None and title is not None:
             self.group_by_isbn[isbn] = book
 
             if author not in self.group_by_author.keys():

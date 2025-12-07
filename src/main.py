@@ -20,6 +20,5 @@ def main() -> None:
         return
     s = Simulator()
     s.run_simulation(n, seed)
-    print(s.library.generate_report())
 if __name__ == "__main__":
     main()
