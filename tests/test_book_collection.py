@@ -123,9 +123,7 @@ class TestBookCollection:
     def test_delete_nonexistent_book(self):
         collection = BookCollection("Test")
         book = Book("Title", "Author", 2020, "Fiction", "12345")
-
-        with pytest.raises(LibraryException, match="not found in collection"):
-            collection.delete_book(book, 1)
+        assert "not found in collection" in collection.delete_book(book, 1)
 
     def test_getitem_by_index(self):
         collection = BookCollection("Test")

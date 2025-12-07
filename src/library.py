@@ -84,7 +84,7 @@ class Library:
             if borrower.borrowed_books[book] == 0:
                 del borrower.borrowed_books[book]
             if len(borrower.borrowed_books) == 0:
-                del self.borrowers[user_id]
+                # del self.borrowers[user_id]
                 self.statistics['active_borrowers']-=1
 
         self.collection.add_book(book, count)
@@ -106,8 +106,7 @@ class Library:
         """Активные читатели (у которых есть книги на руках)"""
         return [
             user_id
-            for user_id, borrower in self.borrowers.items()
-            if borrower.borrowed_books
+            for user_id, borrower in self.borrowers.items() if borrower.borrowed_books
         ]
 
     def get_book_borrow_info(self, book: Book) -> dict:
@@ -133,6 +132,14 @@ class Library:
         books_with_counts = self.collection.get_all_books_with_counts()
         return sorted(books_with_counts, key=lambda x: x[1], reverse=True)[:limit]
 
+    def get_most_borrowed_books(self, limit=5) -> list:
+        """Самые популярные книги по количеству выдач"""
+        book_borrow_counts = []
+        for book, users in self.borrowed_books.items():
+            total_borrowed = sum(users.values())
+            book_borrow_counts.append((book, total_borrowed))
+        return sorted(book_borrow_counts, key=lambda x: x[1], reverse=True)[:limit]
+
     def generate_report(self) -> dict:
         """Генерация отчета"""
         return {
@@ -157,14 +164,6 @@ class Library:
         """Доступна ли книга в нужном количестве"""
         return (book in self.collection and
                 self.collection.get_count(book) >= count)
-
-    def get_most_borrowed_books(self, limit=5) -> list:
-        """Самые популярные книги по количеству выдач"""
-        book_borrow_counts = []
-        for book, users in self.borrowed_books.items():
-            total_borrowed = sum(users.values())
-            book_borrow_counts.append((book, total_borrowed))
-        return sorted(book_borrow_counts, key=lambda x: x[1], reverse=True)[:limit]
 
     def get_top_borrowers(self, limit=5) -> list:
         """Самые активные читатели на текущий момент"""

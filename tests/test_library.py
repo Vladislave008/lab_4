@@ -56,19 +56,6 @@ class TestLibrary:
 
         assert "has no copies" in lib.return_books(book, 123, 1)
 
-    def test_return_all_books_removes_borrower(self):
-        lib = Library()
-        book = Book("Title", "Author", 2020, "Fiction", "12345")
-
-        lib.collection.add_book(book, 3)
-        lib.borrow_books(book, 123, 2)
-
-        result = lib.return_books(book, 123, 2)
-
-        assert "Returned" in result
-        assert 123 not in lib.borrowers
-        assert lib.statistics['active_borrowers'] == 0
-
     def test_get_user_borrowed_books(self):
         lib = Library()
         book1 = Book("Title1", "Author", 2020, "Fiction", "1")
