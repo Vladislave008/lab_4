@@ -394,9 +394,9 @@ class BookCollection():
             return [i[0] for i in self.items[key]]
         elif isinstance(key, str):
             for book, count in self.items:
-                if book.title == key:
+                if book.isbn == key:
                     return book
-            raise KeyError(f"Book with title '{key}' not found")
+            raise KeyError(f"Book with ISBN '{key}' not found")
         else:
             raise TypeError("Invalid key type")
 

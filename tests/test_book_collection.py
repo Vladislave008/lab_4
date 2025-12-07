@@ -151,15 +151,15 @@ class TestBookCollection:
         assert slice_result[0] == books[1]
         assert slice_result[1] == books[2]
 
-    def test_getitem_by_title(self):
+    def test_getitem_by_isbn(self):
         collection = BookCollection("Test")
         book = Book("Specific Title", "Author", 2020, "Fiction", "12345")
 
         collection.add_book(book, 1)
-        assert collection["Specific Title"] == book
+        assert collection["12345"] == book
 
         with pytest.raises(KeyError, match="not found"):
-            collection["Nonexistent Title"]
+            collection["Nonexistent isbn"]
 
     def test_contains(self):
         collection = BookCollection("Test")

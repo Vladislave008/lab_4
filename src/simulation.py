@@ -1,7 +1,7 @@
 from src.library import Library
 from src.book_database import BOOKS, AUTHORS, YEARS, GENRES
 import random
-import numpy as np #type: ignore
+import numpy as np # type: ignore
 from src.constants import COLORS
 from copy import deepcopy
 

@@ -31,10 +31,10 @@ class Library:
         if count <= 0:
             raise LibraryException("Count must be positive")
         if book not in self.collection:
-            return f"{COLORS.RED}Book '{book.title}' not available{COLORS.RESET}"
+            return f"{COLORS.RED}Borrow: Book '{book.title}' not available{COLORS.RESET}"
         current_count = self.collection.get_count(book)
         if current_count < count:
-            return f"{COLORS.RED}Not enough copies of '{book.title}'. Available: {current_count}, requested: {count}{COLORS.RESET}"
+            return f"{COLORS.RED}Borrow: Not enough copies of '{book.title}'. Available: {current_count}, requested: {count}{COLORS.RESET}"
 
         if book not in self.borrowed_books:
             self.borrowed_books[book] = {}
@@ -63,11 +63,11 @@ class Library:
         if count <= 0:
             raise LibraryException("Count must be positive")
         if book not in self.borrowed_books or user_id not in self.borrowed_books[book]:
-            return f"{COLORS.RED}User {user_id} has no copies of '{book.title}' borrowed{COLORS.RESET}"
+            return f"{COLORS.RED}Return: User {user_id} has no copies of '{book.title}' borrowed{COLORS.RESET}"
 
         current_borrowed = self.borrowed_books[book][user_id]
         if current_borrowed < count:
-            return f"{COLORS.RED}User {user_id} has only {current_borrowed} copies of '{book.title}' borrowed, but trying to return {count}{COLORS.RESET}"
+            return f"{COLORS.RED}Return: User {user_id} has only {current_borrowed} copies of '{book.title}' borrowed, but trying to return {count}{COLORS.RESET}"
 
         self.borrowed_books[book][user_id] -= count
         if self.borrowed_books[book][user_id] == 0:
