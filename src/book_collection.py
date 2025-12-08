@@ -8,7 +8,7 @@ class LibraryException(Exception):
         self.message = message
         super().__init__(self.message)
 
-@dataclass
+@dataclass(frozen=True)
 class Book():
     title: Optional[str] = None
     author: Optional[str] = None
