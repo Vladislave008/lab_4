@@ -1,14 +1,14 @@
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Optional, Any
 from src.constants import COLORS
+from dataclasses import dataclass
 
 class LibraryException(Exception):
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
 
-@dataclass(frozen=True)
+@dataclass
 class Book():
     title: Optional[str] = None
     author: Optional[str] = None
@@ -364,6 +364,19 @@ class BookCollection():
 
         return f"{COLORS.RED}Cannot delete book '{book.title}': not found in collection '{self.collection_name}'{COLORS.RESET}"
         #raise LibraryException(f"Cannot delete book '{book.title}': not found in collection '{self.collection_name}')")
+
+    def update_book(self, old_book: Book, new_book: Book) -> str:
+        """Обновление данных книги с синхронизацией индексов"""
+        if old_book.isbn != new_book.isbn:
+            raise LibraryException("Cannot change ISBN. Use delete/add instead")
+        self.validate_book(new_book)
+        for i, (existing_book, count) in enumerate(self.items):
+            if existing_book.isbn == old_book.isbn:
+                self.items[i] = (new_book, count)
+                self.index_dict.delete_book(old_book)
+                self.index_dict.add_book(new_book)
+                return f"{COLORS.GREEN}Updated book with ISBN '{old_book.isbn}' in collection '{self.collection_name}'{COLORS.RESET}"
+        raise LibraryException(f"Can't update book '{old_book.title}': not found in collection")
 
     def get_all_books_with_counts(self)-> list[tuple]:
         """Получить полное содержание коллекции"""

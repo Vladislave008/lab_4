@@ -4,6 +4,7 @@ import random
 import numpy as np # type: ignore
 from src.constants import COLORS
 from copy import deepcopy
+from src.book_collection import Book
 
 class Simulator():
     def __init__(self):
@@ -27,6 +28,25 @@ class Simulator():
             print(f"\t{COLORS.GRAY}Index_dict length before delete: {len(index_before.group_by_isbn.values())}{COLORS.RESET}\n\t{COLORS.GRAY}Index_dict length after delete: {len(index_after.group_by_isbn.values())}{COLORS.RESET}")
         except Exception as e:
             print(f"{COLORS.RED}Error found in delete_book: {e}{COLORS.RESET}")
+
+    def update_book(self):
+        """Обновление информации о случайной книге"""
+        if not self.library.collection.items:
+            print(f"{COLORS.RED}Can't perform update: no books available{COLORS.RESET}")
+            return
+        old_book, count = random.choice(self.library.collection.get_all_books_with_counts())
+        param = random.choice(["author", "year", "genre", "title"])
+        new_book = Book(
+            title=old_book.title + " Upd." if param=="title" else old_book.title,
+            author=random.choice(AUTHORS) if param=="author" else old_book.author,
+            year=random.choice(YEARS) if param=="year" else old_book.year,
+            genre=random.choice(GENRES) if param=="genre" else old_book.genre,
+            isbn=old_book.isbn
+        )
+        try:
+            print(self.library.collection.update_book(old_book, new_book))
+        except Exception as e:
+            print(f"{COLORS.RED}Error found in update_book: {e}{COLORS.RESET}")
 
     def borrow_book(self):
         user_id = random.choice(self.users)
@@ -94,7 +114,7 @@ class Simulator():
         for i in range(pre_add_n):
             self.add_book()
         print(f"\n{COLORS.PINK}---------------------- Making random actions (steps: {steps}) -----------------------{COLORS.RESET}\n")
-        functions = [self.add_book, self.borrow_book, self.borrow_book_non_existent, self.delete_book, self.find_book_by_key, self.return_book]
+        functions = [self.add_book, self.borrow_book, self.borrow_book_non_existent, self.delete_book, self.find_book_by_key, self.return_book, self.update_book]
         for i in range(steps):
             function = random.choice(functions)
             function()

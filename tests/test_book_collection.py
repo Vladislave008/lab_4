@@ -125,6 +125,62 @@ class TestBookCollection:
         book = Book("Title", "Author", 2020, "Fiction", "12345")
         assert "not found in collection" in collection.delete_book(book, 1)
 
+    def test_update_book_success(self):
+        collection = BookCollection("Test")
+        old_book = Book("Old Title", "Old Author", 2020, "Fiction", "12345")
+        new_book = Book("New Title", "New Author", 2021, "Non-Fiction", "12345")
+        collection.add_book(old_book, 3)
+        result = collection.update_book(old_book, new_book)
+        assert "Updated book" in result
+        assert len(collection) == 1
+        assert collection.total_count() == 3
+        assert collection["12345"] == new_book
+        assert old_book not in collection
+        assert new_book in collection
+
+    def test_update_book_isbn_conflict(self):
+        collection = BookCollection("Test")
+        old_book = Book("Title", "Author", 2020, "Fiction", "12345")
+        new_book = Book("New Title", "New Author", 2021, "Non-Fiction", "67890")
+        collection.add_book(old_book, 1)
+        with pytest.raises(LibraryException, match="Cannot change ISBN"):
+            collection.update_book(old_book, new_book)
+        assert collection["12345"] == old_book
+
+    def test_update_book_not_found(self):
+        collection = BookCollection("Test")
+        old_book = Book("Title", "Author", 2020, "Fiction", "12345")
+        new_book = Book("New Title", "New Author", 2021, "Non-Fiction", "12345")
+        with pytest.raises(LibraryException, match="not found in collection"):
+            collection.update_book(old_book, new_book)
+
+    def test_update_book_syncs_indexes(self):
+        collection = BookCollection("Test")
+        old_book = Book("Old Title", "Old Author", 2020, "Old Genre", "12345")
+        new_book = Book("New Title", "New Author", 2021, "New Genre", "12345")
+        collection.add_book(old_book, 1)
+        assert len(collection.index_dict.get_by_author("Old Author")) == 1
+        assert len(collection.index_dict.get_by_genre("Old Genre")) == 1
+        assert len(collection.index_dict.get_by_year(2020)) == 1
+        assert len(collection.index_dict.get_by_title("Old Title")) == 1
+        collection.update_book(old_book, new_book)
+        assert len(collection.index_dict.get_by_author("New Author")) == 1
+        assert len(collection.index_dict.get_by_genre("New Genre")) == 1
+        assert len(collection.index_dict.get_by_year(2021)) == 1
+        assert len(collection.index_dict.get_by_title("New Title")) == 1
+        assert len(collection.index_dict.get_by_author("Old Author")) == 0
+        assert len(collection.index_dict.get_by_genre("Old Genre")) == 0
+
+    def test_update_book_with_multiple_copies(self):
+        collection = BookCollection("Test")
+        old_book = Book("Title", "Author", 2020, "Fiction", "12345")
+        new_book = Book("Updated Title", "Updated Author", 2021, "Non-Fiction", "12345")
+        collection.add_book(old_book, 5)
+        result = collection.update_book(old_book, new_book)
+        assert "Updated book" in result
+        assert collection.get_count(new_book) == 5
+        assert collection.total_count() == 5
+
     def test_getitem_by_index(self):
         collection = BookCollection("Test")
         book1 = Book("Title1", "Author1", 2020, "Fiction", "1")
