@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any
 from src.constants import COLORS
 from dataclasses import dataclass
+from collections import UserDict
 
 class LibraryException(Exception):
     def __init__(self, message: str):
@@ -35,7 +36,7 @@ class Book():
     def __hash__(self):
         return hash((self.title, self.author, self.year, self.genre, self.isbn))
 
-class Index(ABC):
+class Index(UserDict, ABC):
     """Базовый класс для всех типов индексов"""
 
     @abstractmethod
@@ -53,7 +54,7 @@ class Index(ABC):
         """Найти книги по ключу"""
         pass
 
-    @abstractmethod
+    '''@abstractmethod
     def clear(self) -> None:
         """Очистить индекс"""
         pass
@@ -61,7 +62,7 @@ class Index(ABC):
     @abstractmethod
     def count(self) -> int:
         """Количество уникальных ключей в индексе"""
-        pass
+        pass'''
 
     @abstractmethod
     def get_all(self) -> list[Book]:
@@ -73,153 +74,129 @@ class AuthorIndex(Index):
     """Индекс по авторам"""
 
     def __init__(self):
-        self.index: dict[str, list[Book]] = {}
+        super().__init__()
 
     def add(self, book: Book) -> None:
         if book.author is not None:
-            if book.author not in self.index:
-                self.index[book.author] = []
-            if book not in self.index[book.author]:
-                self.index[book.author].append(book)
+            if book.author not in self.data :
+                self.data[book.author] = []
+            if book not in self.data[book.author]:
+                self.data[book.author].append(book)
 
     def remove(self, book: Book) -> None:
-        if book.author is not None and book.author in self.index:
-            if book in self.index[book.author]:
-                self.index[book.author].remove(book)
-                if not self.index[book.author]:
-                    del self.index[book.author]
+        if book.author is not None and book.author in self.data:
+            if book in self.data[book.author]:
+                self.data[book.author].remove(book)
+                if not self.data[book.author]:
+                    del self.data[book.author]
 
     def search(self, author: str) -> list[Book]:
-        return self.index.get(author, [])
-
-    def clear(self) -> None:
-        self.index.clear()
-
-    def count(self) -> int:
-        return len(self.index)
+        return self.data.get(author, [])
 
     def get_all(self) -> list[Book]:
         all_books = []
-        for books_list in self.index.values():
+        for books_list in self.data.values():
             all_books.extend(books_list)
         return all_books
 
     def __repr__(self):
-        return f"AuthorIndex({self.count()} authors)"
+        return f"AuthorIndex({len(self)} authors)"
 
 class YearIndex(Index):
     """Индекс по годам издания"""
 
     def __init__(self):
-        self.index: dict[int, list[Book]] = {}
+        super().__init__()
 
     def add(self, book: Book) -> None:
         if book.year is not None:
-            if book.year not in self.index:
-                self.index[book.year] = []
-            if book not in self.index[book.year]:
-                self.index[book.year].append(book)
+            if book.year not in self.data:
+                self.data[book.year] = []
+            if book not in self.data[book.year]:
+                self.data[book.year].append(book)
 
     def remove(self, book: Book) -> None:
-        if book.year is not None and book.year in self.index:
-            if book in self.index[book.year]:
-                self.index[book.year].remove(book)
-                if not self.index[book.year]:
-                    del self.index[book.year]
+        if book.year is not None and book.year in self.data:
+            if book in self.data[book.year]:
+                self.data[book.year].remove(book)
+                if not self.data[book.year]:
+                    del self.data[book.year]
 
     def search(self, year: int) -> list[Book]:
-        return self.index.get(year, [])
-
-    def clear(self) -> None:
-        self.index.clear()
-
-    def count(self) -> int:
-        return len(self.index)
+        return self.data.get(year, [])
 
     def get_all(self) -> list[Book]:
         all_books = []
-        for books_list in self.index.values():
+        for books_list in self.data.values():
             all_books.extend(books_list)
         return all_books
 
     def __repr__(self):
-        return f"YearIndex({self.count()} years)"
+        return f"YearIndex({len(self)} years)"
 
 class GenreIndex(Index):
     """Индекс по жанрам"""
 
     def __init__(self):
-        self.index: dict[str, list[Book]] = {}
+        super().__init__()
 
     def add(self, book: Book) -> None:
         if book.genre is not None:
-            if book.genre not in self.index:
-                self.index[book.genre] = []
-            if book not in self.index[book.genre]:
-                self.index[book.genre].append(book)
+            if book.genre not in self.data:
+                self.data[book.genre] = []
+            if book not in self.data[book.genre]:
+                self.data[book.genre].append(book)
 
     def remove(self, book: Book) -> None:
-        if book.genre is not None and book.genre in self.index:
-            if book in self.index[book.genre]:
-                self.index[book.genre].remove(book)
-                if not self.index[book.genre]:
-                    del self.index[book.genre]
+        if book.genre is not None and book.genre in self.data:
+            if book in self.data[book.genre]:
+                self.data[book.genre].remove(book)
+                if not self.data[book.genre]:
+                    del self.data[book.genre]
 
     def search(self, genre: str) -> list[Book]:
-        return self.index.get(genre, [])
-
-    def clear(self) -> None:
-        self.index.clear()
-
-    def count(self) -> int:
-        return len(self.index)
+        return self.data.get(genre, [])
 
     def get_all(self) -> list[Book]:
         all_books = []
-        for books_list in self.index.values():
+        for books_list in self.data.values():
             all_books.extend(books_list)
         return all_books
 
     def __repr__(self):
-        return f"GenreIndex({self.count()} genres)"
+        return f"GenreIndex({len(self)} genres)"
 
 class TitleIndex(Index):
     """Индекс по названиям"""
 
     def __init__(self):
-        self.index: dict[str, list[Book]] = {}
+        super().__init__()
 
     def add(self, book: Book) -> None:
         if book.title is not None:
-            if book.title not in self.index:
-                self.index[book.title] = []
-            if book not in self.index[book.title]:
-                self.index[book.title].append(book)
+            if book.title not in self.data:
+                self.data[book.title] = []
+            if book not in self.data[book.title]:
+                self.data[book.title].append(book)
 
     def remove(self, book: Book) -> None:
-        if book.title is not None and book.title in self.index:
-            if book in self.index[book.title]:
-                self.index[book.title].remove(book)
-                if not self.index[book.title]:
-                    del self.index[book.title]
+        if book.title is not None and book.title in self.data:
+            if book in self.data[book.title]:
+                self.data[book.title].remove(book)
+                if not self.data[book.title]:
+                    del self.data[book.title]
 
     def search(self, title: str) -> list[Book]:
-        return self.index.get(title, [])
-
-    def clear(self) -> None:
-        self.index.clear()
-
-    def count(self) -> int:
-        return len(self.index)
+        return self.data.get(title, [])
 
     def get_all(self) -> list[Book]:
         all_books = []
-        for books_list in self.index.values():
+        for books_list in self.data.values():
             all_books.extend(books_list)
         return all_books
 
     def __repr__(self):
-        return f"TitleIndex({self.count()} titles)"
+        return f"TitleIndex({len(self)} titles)"
 
 class IndexDict():
     def __init__(self):
@@ -274,13 +251,13 @@ class IndexDict():
         return len(self.group_by_isbn)
 
     def author_count(self) -> int:
-        return self.group_by_author.count()
+        return len(self.group_by_author)
 
     def year_count(self) -> int:
-        return self.group_by_year.count()
+        return len(self.group_by_year)
 
     def genre_count(self) -> int:
-        return self.group_by_genre.count()
+        return len(self.group_by_genre)
 
     def __len__(self) -> int:
         return len(self.group_by_isbn)
